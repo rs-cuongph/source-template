@@ -1,9 +1,17 @@
+import { useEffect } from "react";
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
-import "./utils/i18n"; // Initialize i18n
+import i18n from "./utils/i18n"; // Import i18n instance
 
 import "./app.css";
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    // Set initial language on mount
+    if (typeof window !== "undefined" && window.document) {
+      window.document.documentElement.lang = i18n.language || "en";
+    }
+  }, []);
+
   return (
     <html lang="en">
       <head>

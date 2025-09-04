@@ -1,6 +1,8 @@
-import type { TFunction } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import * as v from "valibot";
 import { createValidationMessages } from "./message";
+
+type TFunction = ReturnType<typeof useTranslation>["t"];
 
 // Common validation patterns
 export const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -114,7 +116,10 @@ export const createValidationSchemas = (t: TFunction) => {
 
     // Object validation
     object: <
-      T extends Record<string, v.BaseSchema<any, any, v.BaseIssue<unknown>>>,
+      T extends Record<
+        string,
+        v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>
+      >,
     >(
       shape: T
     ) => v.object(shape),

@@ -1,4 +1,6 @@
-import type { TFunction } from "react-i18next";
+import { useTranslation } from "react-i18next";
+
+type TFunction = ReturnType<typeof useTranslation>["t"];
 
 // Common validation message keys for i18n
 export const VALIDATION_KEYS = {
@@ -57,48 +59,3 @@ export const createValidationMessages = (t: TFunction) => ({
     message || getValidationMessage(t, VALIDATION_KEYS.API_ERROR),
   networkError: () => getValidationMessage(t, VALIDATION_KEYS.NETWORK_ERROR),
 });
-
-// Default English messages (fallback)
-export const defaultValidationMessages = {
-  [VALIDATION_KEYS.REQUIRED]: "{{field}} is required",
-  [VALIDATION_KEYS.EMAIL_INVALID]: "Please enter a valid email address",
-  [VALIDATION_KEYS.PASSWORD_MIN_LENGTH]:
-    "Password must be at least {{min}} characters long",
-  [VALIDATION_KEYS.PASSWORD_REQUIRED_CHARACTERS]:
-    "Password must contain at least one uppercase letter, one lowercase letter, and one number",
-  [VALIDATION_KEYS.CONFIRM_PASSWORD_MISMATCH]: "Passwords do not match",
-  [VALIDATION_KEYS.STRING_MIN_LENGTH]:
-    "{{field}} must be at least {{min}} characters long",
-  [VALIDATION_KEYS.STRING_MAX_LENGTH]:
-    "{{field}} must not exceed {{max}} characters",
-  [VALIDATION_KEYS.PHONE_INVALID]: "Please enter a valid phone number",
-  [VALIDATION_KEYS.URL_INVALID]: "Please enter a valid URL",
-  [VALIDATION_KEYS.NUMBER_MIN]: "{{field}} must be at least {{min}}",
-  [VALIDATION_KEYS.NUMBER_MAX]: "{{field}} must not exceed {{max}}",
-  [VALIDATION_KEYS.API_ERROR]:
-    "An error occurred while processing your request",
-  [VALIDATION_KEYS.NETWORK_ERROR]:
-    "Network error. Please check your connection and try again",
-};
-
-// Vietnamese messages
-export const vietnameseValidationMessages = {
-  [VALIDATION_KEYS.REQUIRED]: "{{field}} là bắt buộc",
-  [VALIDATION_KEYS.EMAIL_INVALID]: "Vui lòng nhập địa chỉ email hợp lệ",
-  [VALIDATION_KEYS.PASSWORD_MIN_LENGTH]:
-    "Mật khẩu phải có ít nhất {{min}} ký tự",
-  [VALIDATION_KEYS.PASSWORD_REQUIRED_CHARACTERS]:
-    "Mật khẩu phải chứa ít nhất một chữ cái viết hoa, một chữ cái viết thường và một số",
-  [VALIDATION_KEYS.CONFIRM_PASSWORD_MISMATCH]: "Mật khẩu không khớp",
-  [VALIDATION_KEYS.STRING_MIN_LENGTH]:
-    "{{field}} phải có ít nhất {{min}} ký tự",
-  [VALIDATION_KEYS.STRING_MAX_LENGTH]:
-    "{{field}} không được vượt quá {{max}} ký tự",
-  [VALIDATION_KEYS.PHONE_INVALID]: "Vui lòng nhập số điện thoại hợp lệ",
-  [VALIDATION_KEYS.URL_INVALID]: "Vui lòng nhập URL hợp lệ",
-  [VALIDATION_KEYS.NUMBER_MIN]: "{{field}} phải ít nhất {{min}}",
-  [VALIDATION_KEYS.NUMBER_MAX]: "{{field}} không được vượt quá {{max}}",
-  [VALIDATION_KEYS.API_ERROR]: "Đã xảy ra lỗi khi xử lý yêu cầu của bạn",
-  [VALIDATION_KEYS.NETWORK_ERROR]:
-    "Lỗi mạng. Vui lòng kiểm tra kết nối và thử lại",
-};

@@ -1,71 +1,52 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import {
-  defaultValidationMessages,
-  vietnameseValidationMessages,
-} from "./validation/message";
 
-// Translation resources
+// Import translation files
+import enTranslations from "../locale/en.json";
+import jaTranslations from "../locale/ja.json";
+
+// Merge translations with validation messages
 const resources = {
   en: {
     translation: {
-      // General translations
-      "form.submit": "Submit",
-      "form.cancel": "Cancel",
-      "form.save": "Save",
-      "form.loading": "Loading...",
-      "form.success": "Success!",
-      "form.error": "Error occurred",
-
-      // Post form specific
-      "post.title": "Title",
-      "post.content": "Content",
-      "post.summary": "Summary",
-      "post.tags": "Tags",
-      "post.published": "Published",
-      "post.create": "Create Post",
-      "post.update": "Update Post",
-      "post.createSuccess": "Post created successfully!",
-      "post.updateSuccess": "Post updated successfully!",
-
-      // Validation messages
-      ...defaultValidationMessages,
+      ...enTranslations,
     },
   },
-  vi: {
+  ja: {
     translation: {
-      // General translations
-      "form.submit": "Gửi",
-      "form.cancel": "Hủy",
-      "form.save": "Lưu",
-      "form.loading": "Đang tải...",
-      "form.success": "Thành công!",
-      "form.error": "Đã xảy ra lỗi",
-
-      // Post form specific
-      "post.title": "Tiêu đề",
-      "post.content": "Nội dung",
-      "post.summary": "Tóm tắt",
-      "post.tags": "Thẻ",
-      "post.published": "Đã xuất bản",
-      "post.create": "Tạo bài viết",
-      "post.update": "Cập nhật bài viết",
-      "post.createSuccess": "Tạo bài viết thành công!",
-      "post.updateSuccess": "Cập nhật bài viết thành công!",
-
-      // Validation messages
-      ...vietnameseValidationMessages,
+      ...jaTranslations,
     },
   },
 };
 
+// Get saved language from localStorage or default to 'en'
+const getSavedLanguage = (): string => {
+  if (typeof window !== "undefined" && window.localStorage) {
+    return window.localStorage.getItem("i18nextLng") || "en";
+  }
+  return "en";
+};
+
 i18n.use(initReactI18next).init({
   resources,
-  lng: "en", // default language
+  lng: getSavedLanguage(), // use saved language or default
   fallbackLng: "en",
   interpolation: {
     escapeValue: false, // React already escapes values
   },
+});
+
+// Save language changes to localStorage and update HTML lang
+i18n.on("languageChanged", lng => {
+  if (typeof window !== "undefined") {
+    if (window.localStorage) {
+      window.localStorage.setItem("i18nextLng", lng);
+    }
+    // Update HTML lang attribute directly
+    if (window.document) {
+      window.document.documentElement.lang = lng;
+    }
+  }
 });
 
 export default i18n;

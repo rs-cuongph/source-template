@@ -1,13 +1,16 @@
 // Main exports for validation utilities
 export * from "./common";
-export * from "./custom";
 export * from "./message";
+
+// Export all schemas
+export * from "./schema";
 
 // Re-export valibot for convenience
 export * as v from "valibot";
 
 // Types
-export type { TFunction } from "react-i18next";
+import { useTranslation } from "react-i18next";
+export type TFunction = ReturnType<typeof useTranslation>["t"];
 
 // Validation error handling utilities
 export interface ApiError {
