@@ -1,50 +1,56 @@
-import { useForm } from "@tanstack/react-form";
+import { useForm, type AnyFieldApi } from "@tanstack/react-form";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import * as v from "valibot";
-import FormField from "../components/atoms/FormField";
-import { createPostSchema } from "../utils/validation/schema";
+import {
+  createPostSchema,
+  type PostFormData,
+} from "../utils/validation/schema";
 
 // Mock API function to simulate post creation/update
-const submitPostToApi = async (
-  data: PostFormData
-): Promise<{ success: boolean; errors?: any[] }> => {
-  // Simulate API delay
-  await new Promise(resolve => window.setTimeout(resolve, 1000));
+// const submitPostToApi = async (
+//   data: PostFormData
+// ): Promise<{ success: boolean; errors?: any[] }> => {
+//   // Simulate API delay
+//   await new Promise(resolve => window.setTimeout(resolve, 1000));
 
-  // Simulate API validation errors
-  if (data.title.toLowerCase().includes("error")) {
-    return {
-      success: false,
-      errors: [
-        { field: "title", message: 'Title cannot contain the word "error"' },
-        {
-          field: "description",
-          message:
-            'Description must be more descriptive when title contains "error"',
-        },
-      ],
-    };
-  }
+//   // Simulate API validation errors
+//   if (data.title.toLowerCase().includes("error")) {
+//     return {
+//       success: false,
+//       errors: [
+//         { field: "title", message: 'Title cannot contain the word "error"' },
+//         {
+//           field: "description",
+//           message:
+//             'Description must be more descriptive when title contains "error"',
+//         },
+//       ],
+//     };
+//   }
 
-  // Simulate public ID already exists error
-  if (data.visibility === "public" && data.publicId === "taken") {
-    return {
-      success: false,
-      errors: [
-        { field: "publicId", message: "This public ID is already taken" },
-      ],
-    };
-  }
+//   // Simulate public ID already exists error
+//   if (data.visibility === "public" && data.publicId === "taken") {
+//     return {
+//       success: false,
+//       errors: [
+//         { field: "publicId", message: "This public ID is already taken" },
+//       ],
+//     };
+//   }
 
-  return { success: true };
-};
+//   return { success: true };
+// };
 
-interface PostFormData {
-  title: string;
-  description: string;
-  visibility: "private" | "public";
-  publicId: string;
+function FieldInfo({ field }: { field: AnyFieldApi }) {
+  return (
+    <>
+      {field.state.meta.isTouched && !field.state.meta.isValid ? (
+        <p className="text-sm text-red-600">
+          {field.state.meta.errors.map(err => err.message).join(",")}
+        </p>
+      ) : null}
+    </>
+  );
 }
 
 export default function PostPage() {
@@ -62,95 +68,98 @@ export default function PostPage() {
     defaultValues: {
       title: "",
       description: "",
-      visibility: "private" as "private" | "public",
-      publicId: "",
+      visibility: "private" as const,
+      publicId: undefined,
+    } as PostFormData,
+    validators: {
+      onSubmit: postSchema,
     },
     onSubmit: async ({ value }) => {
       console.log("onSubmit triggered with value:", value);
-      setIsSubmitting(true);
-      setSubmitMessage(null);
+      //   setIsSubmitting(true);
+      //   setSubmitMessage(null);
 
-      try {
-        // Validate form data
-        console.log("Validating with schema...");
-        const validatedData = v.parse(postSchema, value);
-        console.log("Validation passed:", validatedData);
-        console.log("Form data:", JSON.stringify(validatedData));
+      //   try {
+      //     // Validate form data
+      //     console.log("Validating with schema...");
+      //     const validatedData = v.parse(postSchema, value);
+      //     console.log("Validation passed:", validatedData);
+      //     console.log("Form data:", JSON.stringify(validatedData));
 
-        // Here you can add API call
-        // const result = await submitPostToApi(validatedData);
-      } catch (error) {
-        console.log("Validation error:", error);
-        if (error instanceof v.ValiError) {
-          console.log("Validation issues:", error.issues);
-          // Handle validation errors
-          error.issues.forEach(issue => {
-            const fieldPath = issue.path?.[0]?.key as keyof PostFormData;
-            if (fieldPath) {
-              form.setFieldMeta(fieldPath, prev => ({
-                ...prev,
-                errors: [issue.message],
-              }));
-            }
-          });
-        }
-      } finally {
-        setIsSubmitting(false);
-      }
+      //     // Here you can add API call
+      //     // const result = await submitPostToApi(validatedData);
+      //   } catch (error) {
+      //     console.log("Validation error:", error);
+      //     if (error instanceof v.ValiError) {
+      //       console.log("Validation issues:", error.issues);
+      //       // Handle validation errors
+      //       error.issues.forEach(issue => {
+      //         const fieldPath = issue.path?.[0]?.key as keyof PostFormData;
+      //         if (fieldPath) {
+      //           form.setFieldMeta(fieldPath, prev => ({
+      //             ...prev,
+      //             errors: [issue.message],
+      //           }));
+      //         }
+      //       });
+      //     }
+      //   } finally {
+      //     setIsSubmitting(false);
+      //   }
+      // },
+      // onSubmit: async ({ value }) => {
+      //   console.log("onSubmit triggered with value:", value);
+      //   setIsSubmitting(true);
+      //   setSubmitMessage(null);
+
+      //   try {
+      //     // Validate form data only on submit
+      //     console.log("Validating with schema...");
+      //     const validatedData = v.parse(postSchema, value);
+      //     console.log("Validation passed:", validatedData);
+      //     alert(JSON.stringify(validatedData));
+      //     // Submit to API
+      //     const result = await submitPostToApi(validatedData);
+
+      //     if (result.success) {
+      //       setSubmitMessage({
+      //         type: "success",
+      //         message: t("post.createSuccess"),
+      //       });
+      //       // Reset form on success
+      //       form.reset();
+      //     } else if (result.errors) {
+      //       // Set API errors to form fields
+      //       const fieldErrors = convertApiErrorsToFieldErrors(result.errors);
+      //       Object.entries(fieldErrors).forEach(([field, message]) => {
+      //         form.setFieldMeta(field as keyof PostFormData, prev => ({
+      //           ...prev,
+      //           errors: [message],
+      //         }));
+      //       });
+      //     }
+      //   } catch (error) {
+      //     if (error instanceof v.ValiError) {
+      //       // Handle validation errors
+      //       error.issues.forEach(issue => {
+      //         const fieldPath = issue.path?.[0]?.key as keyof PostFormData;
+      //         if (fieldPath) {
+      //           form.setFieldMeta(fieldPath, prev => ({
+      //             ...prev,
+      //             errors: [issue.message],
+      //           }));
+      //         }
+      //       });
+      //     } else {
+      //       setSubmitMessage({
+      //         type: "error",
+      //         message: t("form.error"),
+      //       });
+      //     }
+      //   } finally {
+      //     setIsSubmitting(false);
+      //   }
     },
-    // onSubmit: async ({ value }) => {
-    //   console.log("onSubmit triggered with value:", value);
-    //   setIsSubmitting(true);
-    //   setSubmitMessage(null);
-
-    //   try {
-    //     // Validate form data only on submit
-    //     console.log("Validating with schema...");
-    //     const validatedData = v.parse(postSchema, value);
-    //     console.log("Validation passed:", validatedData);
-    //     alert(JSON.stringify(validatedData));
-    //     // Submit to API
-    //     const result = await submitPostToApi(validatedData);
-
-    //     if (result.success) {
-    //       setSubmitMessage({
-    //         type: "success",
-    //         message: t("post.createSuccess"),
-    //       });
-    //       // Reset form on success
-    //       form.reset();
-    //     } else if (result.errors) {
-    //       // Set API errors to form fields
-    //       const fieldErrors = convertApiErrorsToFieldErrors(result.errors);
-    //       Object.entries(fieldErrors).forEach(([field, message]) => {
-    //         form.setFieldMeta(field as keyof PostFormData, prev => ({
-    //           ...prev,
-    //           errors: [message],
-    //         }));
-    //       });
-    //     }
-    //   } catch (error) {
-    //     if (error instanceof v.ValiError) {
-    //       // Handle validation errors
-    //       error.issues.forEach(issue => {
-    //         const fieldPath = issue.path?.[0]?.key as keyof PostFormData;
-    //         if (fieldPath) {
-    //           form.setFieldMeta(fieldPath, prev => ({
-    //             ...prev,
-    //             errors: [issue.message],
-    //           }));
-    //         }
-    //       });
-    //     } else {
-    //       setSubmitMessage({
-    //         type: "error",
-    //         message: t("form.error"),
-    //       });
-    //     }
-    //   } finally {
-    //     setIsSubmitting(false);
-    //   }
-    // },
   });
 
   return (
@@ -176,67 +185,127 @@ export default function PostPage() {
           console.log("Form submit event triggered");
           e.preventDefault();
           e.stopPropagation();
-          console.log("Calling form.handleSubmit()");
           form.handleSubmit();
         }}
         className="space-y-6"
       >
-        {/* Title Field */}
         <form.Field name="title">
           {field => (
-            <FormField
-              field={field}
-              label={t("post.title")}
-              placeholder={t("post.title")}
-              required
-            />
+            <div className="space-y-2">
+              <label
+                htmlFor={field.name}
+                className="block text-sm font-medium text-gray-700"
+              >
+                Title:
+              </label>
+              <input
+                id={field.name}
+                name={field.name}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={e => field.handleChange(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="Enter post title"
+              />
+              <FieldInfo field={field} />
+            </div>
           )}
         </form.Field>
 
-        {/* Description Field */}
         <form.Field name="description">
           {field => (
-            <FormField
-              field={field}
-              label={t("post.description")}
-              type="textarea"
-              placeholder={t("post.description")}
-              rows={5}
-              required
-            />
+            <div className="space-y-2">
+              <label
+                htmlFor={field.name}
+                className="block text-sm font-medium text-gray-700"
+              >
+                Description:
+              </label>
+              <textarea
+                id={field.name}
+                name={field.name}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={e => field.handleChange(e.target.value)}
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-vertical"
+                placeholder="Enter post description"
+              />
+              <FieldInfo field={field} />
+            </div>
           )}
         </form.Field>
 
-        {/* Visibility Radio */}
         <form.Field name="visibility">
           {field => (
-            <FormField
-              field={field}
-              label={t("post.visibility")}
-              type="radio"
-              required
-              options={[
-                { value: "private", label: t("post.private") },
-                { value: "public", label: t("post.public") },
-              ]}
-            />
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-gray-700">
+                Visibility:
+              </label>
+              <div className="space-y-2">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name={field.name}
+                    value="private"
+                    checked={field.state.value === "private"}
+                    onChange={e => {
+                      const value = e.target.value as "private" | "public";
+                      console.log("Setting visibility to:", value);
+                      field.setValue(value);
+                    }}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">Private</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name={field.name}
+                    value="public"
+                    checked={field.state.value === "public"}
+                    onChange={e => {
+                      const value = e.target.value as "private" | "public";
+                      console.log("Setting visibility to:", value);
+                      field.setValue(value);
+                    }}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">Public</span>
+                </label>
+              </div>
+              <FieldInfo field={field} />
+            </div>
           )}
         </form.Field>
-
-        {/* Public ID Field - Only show when visibility is public */}
-        {form.state.values.visibility === "public" && (
+        <div className="p-4 bg-gray-100 rounded">
+          <p>Debug - Current visibility: {form.state.values.visibility}</p>
+          <p>Debug - Form state: {JSON.stringify(form.state.values)}</p>
+        </div>
+        {/* {form.state.values.visibility === "public" && (
           <form.Field name="publicId">
             {field => (
-              <FormField
-                field={field}
-                label={t("post.publicId")}
-                placeholder="my-awesome-post"
-                required
-                helperText="Only letters, numbers, hyphens and underscores allowed"
-              />
+              <>
+                <label
+                  htmlFor={field.name}
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Public ID:
+                </label>
+                <input
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={e => field.handleChange(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="Enter post title"
+                />
+                <FieldInfo field={field} />
+              </>
             )}
           </form.Field>
-        )}
+        )} */}
 
         {/* Submit Button */}
         <div className="flex justify-end space-x-4">

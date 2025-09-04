@@ -3,7 +3,6 @@ export * from "./post.schema";
 
 // Re-export common validation utilities
 export * from "../common";
-export * from "../message";
 
 // Individual schema creators for post
 import { createPostSchema } from "./post.schema";

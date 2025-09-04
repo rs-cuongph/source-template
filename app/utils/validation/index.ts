@@ -1,6 +1,5 @@
 // Main exports for validation utilities
 export * from "./common";
-export * from "./message";
 
 // Export all schemas
 export * from "./schema";
