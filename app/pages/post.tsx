@@ -278,34 +278,38 @@ export default function PostPage() {
             </div>
           )}
         </form.Field>
-        <div className="p-4 bg-gray-100 rounded">
-          <p>Debug - Current visibility: {form.state.values.visibility}</p>
-          <p>Debug - Form state: {JSON.stringify(form.state.values)}</p>
-        </div>
-        {/* {form.state.values.visibility === "public" && (
-          <form.Field name="publicId">
-            {field => (
-              <>
-                <label
-                  htmlFor={field.name}
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Public ID:
-                </label>
-                <input
-                  id={field.name}
-                  name={field.name}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={e => field.handleChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="Enter post title"
-                />
-                <FieldInfo field={field} />
-              </>
-            )}
-          </form.Field>
-        )} */}
+
+        {/* Debug REACTIVE */}
+        <form.Subscribe selector={s => [s.values.visibility]}>
+          {([_visibility]) => (
+            <>
+              {_visibility === "public" && (
+                <form.Field name="publicId">
+                  {field => (
+                    <>
+                      <label
+                        htmlFor={field.name}
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Public ID:
+                      </label>
+                      <input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={e => field.handleChange(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        placeholder="Enter post title"
+                      />
+                      <FieldInfo field={field} />
+                    </>
+                  )}
+                </form.Field>
+              )}
+            </>
+          )}
+        </form.Subscribe>
 
         {/* Submit Button */}
         <div className="flex justify-end space-x-4">
