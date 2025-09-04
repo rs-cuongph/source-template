@@ -65,17 +65,38 @@ export default function PostPage() {
       visibility: "private" as "private" | "public",
       publicId: "",
     },
-    validators: {
-      onSubmit: ({ value }) => {
-        const result = v.safeParse(postSchema, value);
-        return result.success ? undefined : result.issues;
-      },
-    },
     onSubmit: async ({ value }) => {
+      console.log("onSubmit triggered with value:", value);
       setIsSubmitting(true);
       setSubmitMessage(null);
-      console.log(JSON.stringify(value));
-      setIsSubmitting(false);
+
+      try {
+        // Validate form data
+        console.log("Validating with schema...");
+        const validatedData = v.parse(postSchema, value);
+        console.log("Validation passed:", validatedData);
+        console.log("Form data:", JSON.stringify(validatedData));
+
+        // Here you can add API call
+        // const result = await submitPostToApi(validatedData);
+      } catch (error) {
+        console.log("Validation error:", error);
+        if (error instanceof v.ValiError) {
+          console.log("Validation issues:", error.issues);
+          // Handle validation errors
+          error.issues.forEach(issue => {
+            const fieldPath = issue.path?.[0]?.key as keyof PostFormData;
+            if (fieldPath) {
+              form.setFieldMeta(fieldPath, prev => ({
+                ...prev,
+                errors: [issue.message],
+              }));
+            }
+          });
+        }
+      } finally {
+        setIsSubmitting(false);
+      }
     },
     // onSubmit: async ({ value }) => {
     //   console.log("onSubmit triggered with value:", value);
@@ -152,8 +173,10 @@ export default function PostPage() {
 
       <form
         onSubmit={e => {
+          console.log("Form submit event triggered");
           e.preventDefault();
           e.stopPropagation();
+          console.log("Calling form.handleSubmit()");
           form.handleSubmit();
         }}
         className="space-y-6"
