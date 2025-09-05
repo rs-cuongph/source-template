@@ -1,166 +1,70 @@
-import { useForm, type AnyFieldApi } from "@tanstack/react-form";
-import { useState } from "react";
+import { useForm, useStore, type AnyFieldApi } from "@tanstack/react-form";
 import { useTranslation } from "react-i18next";
 import {
   createPostSchema,
   type PostFormData,
 } from "../utils/validation/schema";
 
-// Mock API function to simulate post creation/update
-// const submitPostToApi = async (
-//   data: PostFormData
-// ): Promise<{ success: boolean; errors?: any[] }> => {
-//   // Simulate API delay
-//   await new Promise(resolve => window.setTimeout(resolve, 1000));
-
-//   // Simulate API validation errors
-//   if (data.title.toLowerCase().includes("error")) {
-//     return {
-//       success: false,
-//       errors: [
-//         { field: "title", message: 'Title cannot contain the word "error"' },
-//         {
-//           field: "description",
-//           message:
-//             'Description must be more descriptive when title contains "error"',
-//         },
-//       ],
-//     };
-//   }
-
-//   // Simulate public ID already exists error
-//   if (data.visibility === "public" && data.publicId === "taken") {
-//     return {
-//       success: false,
-//       errors: [
-//         { field: "publicId", message: "This public ID is already taken" },
-//       ],
-//     };
-//   }
-
-//   return { success: true };
-// };
-
 function FieldInfo({ field }: { field: AnyFieldApi }) {
+  const error = field.state.meta.errors;
+  let errorMessage = "";
+  if (typeof error === "string") {
+    errorMessage = error;
+  } else if (typeof error === "object" && error !== null) {
+    errorMessage = error
+      .map(err => {
+        if (typeof err === "string") {
+          return err;
+        }
+        return err.message;
+      })
+      .join(", ");
+  }
+
   return (
     <>
-      {field.state.meta.isTouched && !field.state.meta.isValid ? (
-        <p className="text-sm text-red-600">
-          {field.state.meta.errors.map(err => err.message).join(",")}
-        </p>
-      ) : null}
+      <p className="text-sm text-red-600">{errorMessage}</p>
     </>
   );
 }
 
 export default function PostPage() {
   const { t } = useTranslation();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitMessage, setSubmitMessage] = useState<{
-    type: "success" | "error";
-    message: string;
-  } | null>(null);
 
   // Create validation schema with conditional validation
   const postSchema = createPostSchema(t);
 
+  const submitPostToApi = async () => {
+    // Simulate API delay
+    await new Promise(resolve => window.setTimeout(resolve, 1000));
+    console.log("submitPostToApi");
+    // Simulate API validation errors
+    return {
+      form: "loi chung",
+      fields: {
+        title: 'Title cannot contain the word "error"',
+        description:
+          'Description must be more descriptive when title contains "error"',
+      },
+    };
+  };
+
   const form = useForm({
+    // canSubmitWhenInvalid: true,
     defaultValues: {
       title: "",
       description: "",
       visibility: "private" as const,
-      publicId: undefined,
+      publicId: "",
     } as PostFormData,
     validators: {
       onSubmit: postSchema,
-    },
-    onSubmit: async ({ value }) => {
-      console.log("onSubmit triggered with value:", value);
-      //   setIsSubmitting(true);
-      //   setSubmitMessage(null);
-
-      //   try {
-      //     // Validate form data
-      //     console.log("Validating with schema...");
-      //     const validatedData = v.parse(postSchema, value);
-      //     console.log("Validation passed:", validatedData);
-      //     console.log("Form data:", JSON.stringify(validatedData));
-
-      //     // Here you can add API call
-      //     // const result = await submitPostToApi(validatedData);
-      //   } catch (error) {
-      //     console.log("Validation error:", error);
-      //     if (error instanceof v.ValiError) {
-      //       console.log("Validation issues:", error.issues);
-      //       // Handle validation errors
-      //       error.issues.forEach(issue => {
-      //         const fieldPath = issue.path?.[0]?.key as keyof PostFormData;
-      //         if (fieldPath) {
-      //           form.setFieldMeta(fieldPath, prev => ({
-      //             ...prev,
-      //             errors: [issue.message],
-      //           }));
-      //         }
-      //       });
-      //     }
-      //   } finally {
-      //     setIsSubmitting(false);
-      //   }
-      // },
-      // onSubmit: async ({ value }) => {
-      //   console.log("onSubmit triggered with value:", value);
-      //   setIsSubmitting(true);
-      //   setSubmitMessage(null);
-
-      //   try {
-      //     // Validate form data only on submit
-      //     console.log("Validating with schema...");
-      //     const validatedData = v.parse(postSchema, value);
-      //     console.log("Validation passed:", validatedData);
-      //     alert(JSON.stringify(validatedData));
-      //     // Submit to API
-      //     const result = await submitPostToApi(validatedData);
-
-      //     if (result.success) {
-      //       setSubmitMessage({
-      //         type: "success",
-      //         message: t("post.createSuccess"),
-      //       });
-      //       // Reset form on success
-      //       form.reset();
-      //     } else if (result.errors) {
-      //       // Set API errors to form fields
-      //       const fieldErrors = convertApiErrorsToFieldErrors(result.errors);
-      //       Object.entries(fieldErrors).forEach(([field, message]) => {
-      //         form.setFieldMeta(field as keyof PostFormData, prev => ({
-      //           ...prev,
-      //           errors: [message],
-      //         }));
-      //       });
-      //     }
-      //   } catch (error) {
-      //     if (error instanceof v.ValiError) {
-      //       // Handle validation errors
-      //       error.issues.forEach(issue => {
-      //         const fieldPath = issue.path?.[0]?.key as keyof PostFormData;
-      //         if (fieldPath) {
-      //           form.setFieldMeta(fieldPath, prev => ({
-      //             ...prev,
-      //             errors: [issue.message],
-      //           }));
-      //         }
-      //       });
-      //     } else {
-      //       setSubmitMessage({
-      //         type: "error",
-      //         message: t("form.error"),
-      //       });
-      //     }
-      //   } finally {
-      //     setIsSubmitting(false);
-      //   }
+      onSubmitAsync: submitPostToApi,
     },
   });
+
+  const errors = useStore(form.store, s => s.errorMap);
+  console.log("errors", errors);
 
   return (
     <div className="max-w-4xl mx-auto p-8">
@@ -168,21 +72,8 @@ export default function PostPage() {
         <h1 className="text-3xl font-bold">{t("post.create")}</h1>
       </div>
 
-      {submitMessage && (
-        <div
-          className={`mb-6 p-4 rounded ${
-            submitMessage.type === "success"
-              ? "bg-green-100 text-green-700 border border-green-300"
-              : "bg-red-100 text-red-700 border border-red-300"
-          }`}
-        >
-          {submitMessage.message}
-        </div>
-      )}
-
       <form
-        onSubmit={e => {
-          console.log("Form submit event triggered");
+        onSubmit={async e => {
           e.preventDefault();
           e.stopPropagation();
           form.handleSubmit();
@@ -211,7 +102,6 @@ export default function PostPage() {
             </div>
           )}
         </form.Field>
-
         <form.Field name="description">
           {field => (
             <div className="space-y-2">
@@ -235,7 +125,6 @@ export default function PostPage() {
             </div>
           )}
         </form.Field>
-
         <form.Field name="visibility">
           {field => (
             <div className="space-y-3">
@@ -251,7 +140,6 @@ export default function PostPage() {
                     checked={field.state.value === "private"}
                     onChange={e => {
                       const value = e.target.value as "private" | "public";
-                      console.log("Setting visibility to:", value);
                       field.setValue(value);
                     }}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
@@ -266,7 +154,6 @@ export default function PostPage() {
                     checked={field.state.value === "public"}
                     onChange={e => {
                       const value = e.target.value as "private" | "public";
-                      console.log("Setting visibility to:", value);
                       field.setValue(value);
                     }}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
@@ -278,12 +165,10 @@ export default function PostPage() {
             </div>
           )}
         </form.Field>
-
-        {/* Debug REACTIVE */}
-        <form.Subscribe selector={s => [s.values.visibility]}>
-          {([_visibility]) => (
+        <form.Subscribe selector={s => s.values.visibility}>
+          {_visibility => (
             <>
-              {_visibility === "public" && (
+              {_visibility === "public" ? (
                 <form.Field name="publicId">
                   {field => (
                     <>
@@ -294,10 +179,8 @@ export default function PostPage() {
                         Public ID:
                       </label>
                       <input
-                        id={field.name}
                         name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
+                        value={field.state.value ?? ""}
                         onChange={e => field.handleChange(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         placeholder="Enter post title"
@@ -306,7 +189,7 @@ export default function PostPage() {
                     </>
                   )}
                 </form.Field>
-              )}
+              ) : null}
             </>
           )}
         </form.Subscribe>
@@ -320,19 +203,53 @@ export default function PostPage() {
           >
             {t("form.cancel")}
           </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className={`px-6 py-2 rounded-md text-white transition-colors ${
-              isSubmitting
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
-            }`}
+          <form.Subscribe
+            selector={state => [state.canSubmit, state.isSubmitting]}
           >
-            {isSubmitting ? t("form.loading") : t("form.submit")}
-          </button>
+            {([canSubmit, isSubmitting]) => (
+              <button
+                type="submit"
+                disabled={isSubmitting || !canSubmit}
+                className={`px-6 py-2 rounded-md text-white transition-colors ${
+                  isSubmitting || !canSubmit
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700"
+                }`}
+              >
+                {isSubmitting ? t("form.loading") : t("form.submit")}
+              </button>
+            )}
+          </form.Subscribe>
         </div>
       </form>
     </div>
   );
 }
+//   try {
+//     // Validate form data
+//     console.log("Validating with schema...");
+//     const validatedData = v.parse(postSchema, value);
+//     console.log("Validation passed:", validatedData);
+//     console.log("Form data:", JSON.stringify(validatedData));
+
+//     // Here you can add API call
+//     // const result = await submitPostToApi(validatedData);
+//   } catch (error) {
+//     console.log("Validation error:", error);
+//     if (error instanceof v.ValiError) {
+//       console.log("Validation issues:", error.issues);
+//       // Handle validation errors
+//       error.issues.forEach(issue => {
+//         const fieldPath = issue.path?.[0]?.key as keyof PostFormData;
+//         if (fieldPath) {
+//           form.setFieldMeta(fieldPath, prev => ({
+//             ...prev,
+//             errors: [issue.message],
+//           }));
+//         }
+//       });
+//     }
+//   } finally {
+//     setIsSubmitting(false);
+//   }
+// },
